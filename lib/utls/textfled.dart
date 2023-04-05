@@ -11,6 +11,7 @@ class TextFieldWidget extends StatefulWidget {
   final int? maxLines;
   final IconData iconData;
   final VoidCallback? onChange;
+  final VoidCallback? onTap;
   final TextEditingController? controller;
   final bool readOnly;
 
@@ -25,6 +26,7 @@ class TextFieldWidget extends StatefulWidget {
     this.controller,
     this.maxLines = 1,
     this.onChange,
+    this.onTap,
     required this.readOnly,
   }) : super(key: key);
 
@@ -38,6 +40,7 @@ class _TextFliedWidgetState extends State<TextFieldWidget> {
     return Container(
       child: TextField(
         readOnly: widget.readOnly,
+        onTap: (){},
         onChanged: (value) {
           widget.onChange;
         },

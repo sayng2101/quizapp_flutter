@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-Future<bool> showExitPopup(context) async {
+Future<bool> showExitPopup(context, title) async {
   return await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -11,7 +11,7 @@ Future<bool> showExitPopup(context) async {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Bạn muốn thoát khỏi ứng dụng?"),
+              Text(title),
                 const SizedBox(height: 20),
                 Row(
                   children: [

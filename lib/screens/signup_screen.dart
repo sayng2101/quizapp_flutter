@@ -1,20 +1,23 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:quizapp/provider/user.dart';
+import 'package:quizapp/widgets/show_snack_bar.dart';
 
-import 'package:quizapp/screens/login_screen.dart';
 
 import '../const.dart';
 import '../utls/textfled2.dart';
 import '../utls/textfled3.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _controleremail = TextEditingController();
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
+  final TextEditingController _controlerusername = TextEditingController();
   final TextEditingController _controlerpassword = TextEditingController();
   final TextEditingController _controlerfullname = TextEditingController();
   // ignore: prefer_final_fields
@@ -48,11 +51,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 height: 30,
               ),
               TextField2Widget(
-                hintText: 'Nhập email đăng ký',
+                hintText: 'Nhập tai khoan đăng ký',
                 iconData: Icons.person,
                 color: backgroundColor,
                 colorIcon: Colors.black,
-                controller: _controleremail,
+                controller: _controlerusername,
               ),
               const SizedBox(
                 height: 30,
@@ -93,12 +96,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 child: Center(
                   child: InkWell(
-                    onTap: () {
+                    onTap: () async {
                       setState(() {
                         _isLoading = true;
                       });
-                      signUpUser();
-                      _controleremail.clear();
+                       final signup = await ref.read(apiSignupProvider).sigupUser(
+                        _controlerusername.text.trim(),
+                        _controlerpassword.text.trim(),
+                        _controlerfullname.text.trim(),
+                        );
+                    // ignore: unrelated_type_equality_checks
+                    if (signup == true) {
+                      // ignore: use_build_context_synchronously
+                      showSnackBar(
+                          "Dang ky thanh cong", context);
+                    } else {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      // ignore: use_build_context_synchronously
+                      showSnackBar(
+                          "Dang nhap that bai vui long dang nhap lai", context);
+                    }
+                      _controlerusername.clear();
                       _controlerpassword.clear();
                       _controlerfullname.clear();
                     },
@@ -127,11 +147,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
+                      context.router.replaceNamed('/');
                     },
                     child: const Text(
                       'Bạn đã có tài khoản?',
@@ -148,11 +164,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }
-
-  signUpUser() async {
-    setState(() {
-      _isLoading = true;
-    });
   }
 }

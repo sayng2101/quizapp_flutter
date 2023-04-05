@@ -2,36 +2,56 @@
 
 import 'dart:convert';
 
+import 'package:auto_route/auto_route.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quizapp/controllers/service.dart';
-import 'package:quizapp/models/user.dart';
+import 'package:quizapp/provider/user.dart';
+
 import 'package:quizapp/screens/home_screen.dart';
-import 'package:quizapp/screens/profile_screnn.dart';
-import 'package:quizapp/screens/resetpass_screen.dart';
+import 'package:quizapp/screens/profile_screen.dart';
+import 'package:quizapp/screens/reset_pass_screen.dart';
 import 'package:quizapp/screens/signup_screen.dart';
 import 'package:quizapp/widgets/bottom_nav.dart';
 import 'package:quizapp/widgets/show_snack_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../const.dart';
 import '../utls/textfled2.dart';
 import '../utls/textfled3.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<ConsumerStatefulWidget> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _dio = Dio();
   final TextEditingController _controleremail = TextEditingController();
   final TextEditingController _controlerpassword = TextEditingController();
   // ignore: prefer_final_fields
   bool _isLoading = false;
   bool _checkPass = true;
   bool? changValue = false;
+  @override
+  void initState() {
+    // initDefaultlogin();
+    super.initState();
+  }
+
+  // initDefaultlogin() async {
+  //   SharedPreferences presf = await SharedPreferences.getInstance();
+  //   String user = presf.getString("user") ?? _controleremail.text.trim();
+  //   String pass = presf.getString("pass") ?? _controlerpassword.text.trim();
+  //   setState(() {
+  //     _controleremail = user as TextEditingController;
+  //     _controlerpassword = pass as TextEditingController;
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 30,
             ),
             TextField2Widget(
-              hintText: 'Email đăng nhập',
+              hintText: 'Tên đăng nhập',
               iconData: Icons.person,
               color: backgroundColor,
               colorIcon: Colors.black,
@@ -92,13 +112,26 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: Center(
                 child: InkWell(
-                  onTap: () {
+                  onTap: () async {
                     setState(() {
                       _isLoading = true;
                     });
-                    Service().loginUser(_controleremail.text.trim(),
-                        _controlerpassword.text.trim(),context);
-                    
+                    final login = await ref.read(apiProvider).loginUser(
+                        _controleremail.text.trim(),
+                        _controlerpassword.text.trim());
+                    // ignore: unrelated_type_equality_checks
+                    if (login == true) {
+                      context.router.replaceNamed('/home-screen');
+                    } else {
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      showSnackBar(
+                          "Dang nhap that bai vui long dang nhap lai", context);
+                    }
+                    // ignore: unrelated_type_equality_checks
+                    // ApiServic().loginUser(_controleremail.text.trim(),
+                    //     _controlerpassword.text.trim(), context);
                     _controleremail.clear();
                     _controlerpassword.clear();
                   },
@@ -127,11 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const SignUpScreen(),
-                      ),
-                    );
+                    context.router.replaceNamed('/sign-screen');
                   },
                   child: const Text(
                     'Đăng ký',
@@ -167,7 +196,14 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-  
 }
+// class LoginScreen extends StatefulWidget {
+//   const LoginScreen({super.key});
 
+//   @override
+//   State<LoginScreen> createState() => _LoginScreenState();
+// }
 
+// class _LoginScreenState extends State<LoginScreen> {
+ 
+// }
